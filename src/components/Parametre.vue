@@ -55,7 +55,7 @@ function enregistrerPrix() {
 }
 
 function deconnexion() {
-  auth.logout()
+  auth.deconnecterUtilisateur()
   router.push('/login')
 }
 

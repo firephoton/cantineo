@@ -85,7 +85,7 @@ function charger() {
 
 // --- Actions ---
 function ajouter() {
-  auth.hashPassword(motDePasse.value).then(function (hash) {
+  auth.hasherMotDePasse(motDePasse.value).then(function (hash) {
     model.ajouterGestionnaire(login.value, hash).then(function () {
       login.value = ''
       motDePasse.value = ''
@@ -107,7 +107,7 @@ function fermerPopup() {
 function validerModif() {
   if (popupModif.value == null) return
   if (modifMotDePasse.value != null && modifMotDePasse.value !== '') {
-    auth.hashPassword(modifMotDePasse.value).then(function (hash) {
+    auth.hasherMotDePasse(modifMotDePasse.value).then(function (hash) {
       model.modifierGestionnaire(popupModif.value, modifLogin.value, hash).then(function () {
         popupModif.value = null
         charger()

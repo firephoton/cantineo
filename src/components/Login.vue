@@ -50,15 +50,15 @@ function verifierPremierCompte() {
 
 // --- Actions ---
 function connexion() {
-  auth.login(model, login.value, motDePasse.value).then(function (ok) {
+  auth.connecterUtilisateur(model, login.value, motDePasse.value).then(function (ok) {
     if (ok) router.push('/')
   })
 }
 
 function creerPremier() {
-  auth.hashPassword(motDePasse.value).then(function (hash) {
+  auth.hasherMotDePasse(motDePasse.value).then(function (hash) {
     model.ajouterGestionnaire(login.value, hash).then(function () {
-      auth.login(model, login.value, motDePasse.value).then(function (ok) {
+      auth.connecterUtilisateur(model, login.value, motDePasse.value).then(function (ok) {
         if (ok) router.push('/')
       })
     })

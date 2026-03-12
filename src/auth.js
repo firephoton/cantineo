@@ -1,36 +1,63 @@
 import { ref } from 'vue'
-
 var isLoggedIn = ref(false)
 
-function bufferToHex(buffer) {
-  return Array.from(new Uint8Array(buffer))
-    .map(function (b) { return b.toString(16).padStart(2, '0') })
-    .join('')
+function convertirEnHex(donneesBrutes) {
+  var vue = new DataView(donneesBrutes)
+  var resultat = ''
+
+  for (var i = 0; i < vue.byteLength; i++) {
+    var valeur = vue.getUint8(i)
+
+    if (valeur < 16) {
+      resultat += '0'
+    }
+    resultat += valeur.toString(16)
+  }
+
+  return resultat
 }
 
-function hashPassword(password) {
-  var bytes = new TextEncoder().encode(password)
-  return window.crypto.subtle.digest('SHA-256', bytes).then(bufferToHex)
+function hasherMotDePasse(motDePasse) {
+  var encoder = new TextEncoder()
+  var octets = encoder.encode(motDePasse)
+
+  return window.crypto.subtle.digest('SHA-256', octets).then(function (donneesHash) {
+    return convertirEnHex(donneesHash)
+  })
 }
 
-function login(model, loginValue, password) {
+function connecterUtilisateur(model, loginValue, motDePasse) {
   return model.ouvrirBase()
-    .then(function () { return model.creerTables() })
-    .then(function () { return model.getGestionnaireParLogin(loginValue) })
+    .then(function () {
+      return model.creerTables()
+    })
+    .then(function () {
+      return model.getGestionnaireParLogin(loginValue)
+    })
     .then(function (gestionnaire) {
-      if (!gestionnaire) return false
-      return hashPassword(password).then(function (hash) {
-        if (hash !== gestionnaire.mot_de_passe_hache) return false
+      if (!gestionnaire) {
+        return Promise.resolve(false)
+      }
+
+      return hasherMotDePasse(motDePasse).then(function (hash) {
+        if (hash !== gestionnaire.mot_de_passe_hache) {
+          return false
+        }
         isLoggedIn.value = true
         return true
       })
     })
 }
 
-function logout() {
+function deconnecterUtilisateur() {
   isLoggedIn.value = false
 }
 
 export function useAuth() {
-  return { isLoggedIn, hashPassword, login, logout }
+  return {
+    isLoggedIn,
+    hasherMotDePasse,
+    connecterUtilisateur,
+    deconnecterUtilisateur
+  }
 }
